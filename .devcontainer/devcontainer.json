@@ -1,0 +1,77 @@
+{
+  "name": "Audiobook Generator",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.11"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/azure-cli:1": {},
+    "ghcr.io/devcontainers/features/aws-cli:1": {},
+    "ghcr.io/dhoeric/features/google-cloud-cli:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/anthropics/devcontainer-features/claude-code:latest": {}
+  },
+
+  "remoteEnv": {
+    "ELEVENLABS_API_KEY": "${localEnv:ELEVENLABS_API_KEY}",
+
+    // Helpful: avoid weird path issues
+    "PATH": "/usr/local/bin:/usr/bin:/bin:/home/vscode/.local/bin:${containerEnv:PATH}",
+
+    // Google Vertex AI configuration (active)
+    // Set GOOGLE_CLOUD_PROJECT on the host, or hardcode the project ID below.
+    // ADC is picked up from the mounted ~/.config/gcloud directory.
+    "CLAUDE_CODE_USE_VERTEX": "1",
+    "ANTHROPIC_VERTEX_PROJECT_ID": "${localEnv:GOOGLE_CLOUD_PROJECT}",
+    "CLOUD_ML_REGION": "us-east5",
+
+    // Provider-agnostic Claude Code settings
+    "ANTHROPIC_MODEL": "claude-opus-4-7",
+    "CLAUDE_CODE_EXTRA_BODY": "{\"thinking\":{\"type\":\"adaptive\"}}",
+    "DISABLE_AUTOUPDATER": "1",
+
+    // AWS Bedrock configuration (disabled, kept for reference)
+    // "CLAUDE_CODE_USE_BEDROCK": "1",
+    // "AWS_REGION": "ap-southeast-2",
+    // "CLAUDE_CODE_MODEL": "global.anthropic.claude-opus-4-7",
+    // Inherit AWS credentials/session from host
+    // "AWS_ACCESS_KEY_ID": "${localEnv:AWS_ACCESS_KEY_ID}",
+    // "AWS_SECRET_ACCESS_KEY": "${localEnv:AWS_SECRET_ACCESS_KEY}",
+    // "AWS_SESSION_TOKEN": "${localEnv:AWS_SESSION_TOKEN}",
+    // "AWS_PROFILE": "10x"
+  },
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-toolsai.jupyter",
+        "eamodio.gitlens"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.testing.pytestEnabled": true,
+        "python.testing.unittestEnabled": false,
+        "python.formatting.provider": "black",
+        "git.enabled": true,
+        "git.path": "/usr/bin/git",
+        "git.autorefresh": true,
+        "terminal.integrated.fontFamily": "'Vazirmatn', 'Noto Sans Arabic', monospace",
+        "editor.fontFamily": "'Vazirmatn', 'Noto Sans Arabic', 'Droid Sans Mono', monospace"
+      }
+    }
+  },
+
+  "mounts": [
+    // Mount host gcloud config so application-default credentials propagate into the container.
+    "source=${localEnv:HOME}/.config/gcloud,target=/home/vscode/.config/gcloud,type=bind,consistency=cached"
+    // "source=${localEnv:HOME}/.aws,target=/home/vscode/.aws,type=bind,consistency=cached"
+  ],
+
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "remoteUser": "vscode"
+}

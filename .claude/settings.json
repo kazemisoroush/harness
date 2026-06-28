@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": ["Bash(*)"]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "/workspaces/harness/.claude/statusline.sh"
+  },
+  "enableAllProjectMcpServers": true
+}
